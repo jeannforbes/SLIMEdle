@@ -23,6 +23,16 @@ const AccountSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  slimes: {
+    type: Number,
+    default: 0,
+    required: true,
+  },
+  goo: {
+    type: Number,
+    default: 0,
+    required: true,
+  },
   createdDate: {
     type: Date,
     default: Date.now,
@@ -32,6 +42,8 @@ const AccountSchema = new mongoose.Schema({
 AccountSchema.statics.toAPI = doc => ({
   // _id is built into your mongo document and is guaranteed to be unique
   username: doc.username,
+  slimes: doc.slimes,
+  goo: doc.goo,
   _id: doc._id,
 });
 

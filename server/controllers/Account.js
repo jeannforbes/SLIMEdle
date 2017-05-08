@@ -1,6 +1,5 @@
 const models = require('../models');
 const Account = models.Account;
-const Opp = models.Opp;
 
 const loginPage = (req, res) => {
   const token = req.csrfToken();
@@ -9,7 +8,12 @@ const loginPage = (req, res) => {
 
 const settingsPage = (req, res) => {
   const token = req.csrfToken();
-  res.render('account', { csrfToken: token });
+  res.render('settings', { csrfToken: token });
+};
+
+const gamePage = (req, res) => {
+  const token = req.csrfToken();
+  res.render('app', { csrfToken: token });
 };
 
 const logout = (req, res) => {
@@ -35,7 +39,7 @@ const login = (request, response) => {
 
     req.session.account = Account.AccountModel.toAPI(account);
 
-    return res.json({ redirect: '/maker' });
+    return res.json({ redirect: '/' });
   });
 };
 
@@ -60,8 +64,8 @@ const signup = (request, response) => {
       username: req.body.username,
       salt,
       password: hash,
-      bookmarks: [],
-      rsvps: [],
+      slimes: req.body.slimes,
+      goo: req.body.goo,
     };
 
     const newAccount = new Account.AccountModel(accountData);
@@ -69,7 +73,7 @@ const signup = (request, response) => {
 
     savePromise.then(() => {
       req.session.account = Account.AccountModel.toAPI(newAccount);
-      return res.json({ redirect: '/maker' });
+      return res.json({ redirect: '/' });
     });
 
     savePromise.catch((err) => {
@@ -95,57 +99,8 @@ const passwordChange = (req, res) => {
         return res.status(400).json({ error: 'An error occurred' });
       }
 
-      return res.json({ redirect: '/account' });
+      return res.json({ redirect: '/settings' });
     });
-};
-
-const addBookmark = (req, res) => {
-  Opp.OppModel.addBookmark(
-    req.body.uniqueId,
-    req.session.account._id, (err) => {
-      if (err) {
-        console.log(err);
-        return res.status(400).json({ error: 'An error occurred' });
-      }
-      return res.status(200).json({ message: 'Bookmarked successfully' });
-    });
-};
-
-const getBookmarks = (req, res) => {
-  const id = req.session.account._id;
-  return Opp.OppModel.find({ bookmarks: id }, (err, docs) => {
-    if (err) {
-      console.log(err);
-      return res.status(400).json({ error: 'An error occurred' });
-    }
-
-    return res.status(200).json({ opps: docs });
-  });
-};
-
-const addRSVP = (req, res) => {
-  Opp.OppModel.addRSVP(
-    req.body.uniqueId,
-    req.session.account._id, (err) => {
-      if (err) {
-        console.log(err);
-        return res.status(400).json({ error: 'An error occurred' });
-      }
-
-      return res.status(200).json({ message: 'RSVPed successfully' });
-    });
-};
-
-const getRSVPs = (req, res) => {
-  const id = req.session.account._id;
-  return Opp.OppModel.find({ rsvps: id }, (err, docs) => {
-    if (err) {
-      console.log(err);
-      return res.status(400).json({ error: 'An error occurred' });
-    }
-    console.log(docs);
-    return res.json({ opps: docs });
-  });
 };
 
 const getToken = (request, response) => {
@@ -164,9 +119,6 @@ module.exports.login = login;
 module.exports.logout = logout;
 module.exports.signup = signup;
 module.exports.settings = settingsPage;
+module.exports.gamePage = gamePage;
 module.exports.passwordChange = passwordChange;
 module.exports.getToken = getToken;
-module.exports.addRSVP = addRSVP;
-module.exports.getRSVPs = getRSVPs;
-module.exports.addBookmark = addBookmark;
-module.exports.getBookmarks = getBookmarks;
